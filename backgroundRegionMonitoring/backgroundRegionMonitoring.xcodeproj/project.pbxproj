@@ -475,6 +475,7 @@
 				F823B52C18976F90008AECF7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F823B52D18976F90008AECF7 /* Build configuration list for PBXNativeTarget "backgroundRegionMonitoringTests" */ = {
 			isa = XCConfigurationList;
@@ -483,6 +484,7 @@
 				F823B52F18976F90008AECF7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

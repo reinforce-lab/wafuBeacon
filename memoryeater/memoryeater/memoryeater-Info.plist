@@ -24,30 +24,12 @@
 	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSLocationUsageDescription</key>
-	<string>iBeaconを利用します。</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>location</string>
-	</array>
-	<key>UIFileSharingEnabled</key>
-	<true/>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
 	</array>
-	<key>UIStatusBarTintParameters</key>
-	<dict>
-		<key>UINavigationBar</key>
-		<dict>
-			<key>Style</key>
-			<string>UIBarStyleDefault</string>
-			<key>Translucent</key>
-			<false/>
-		</dict>
-	</dict>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

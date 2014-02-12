@@ -33,8 +33,13 @@
     
     _logText = [[NSMutableString alloc] init];
     _logTextView.text = @"";
+
+    // PeripheralManagerオブジェクトを作ります。
+    // Bluetoothの電源がOFFの場合はダイアログを表示します。
+    _peripheralManager = [[CBPeripheralManager alloc]
+                          initWithDelegate:self queue:nil
+                          options:@{CBPeripheralManagerOptionShowPowerAlertKey : @YES}];
     
-    _peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil options:nil];
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
     
     // CLBeaconRegionを作成
@@ -54,6 +59,15 @@
     _monitoringSwitch.on = NO;
     _beaconSwitch.on     = NO;
 }
+
+/*
+ // iOS5.1以降、アプリケーションから設定アプリに遷移する方法はない。
+-(void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"prefs:root=LOCATION_SERVICES"]];
+}
+ */
 
 #pragma mark Private methods
 -(void)writeLog:(NSString *)log {
@@ -77,13 +91,26 @@
 }
 
 -(void)startMonitoring {
+    [self writeLog:@"startMonitoring"];
     _region.notifyOnEntry = YES;
     _region.notifyOnExit  = YES;
     _region.notifyEntryStateOnDisplay = YES;
     [_locationManager startMonitoringForRegion:_region];
 }
 -(void)stopMonitoring {
+    [self writeLog:@"stopMonitoring"];
     [_locationManager stopMonitoringForRegion:_region];
+}
+-(void)startRanging {
+    [self writeLog:@"startRanging"];
+    
+    // CLBeaconRegionを作成
+    [_locationManager startRangingBeaconsInRegion:_region];
+    [self writeLog:[NSString stringWithFormat:@"rangedRegions: %@", _locationManager.rangedRegions]];
+}
+-(void)stopRanging {
+    [self writeLog:@"stopRanging"];
+    [_locationManager stopRangingBeaconsInRegion:_region];
 }
 -(void)startBeacon {
     // check paremters
@@ -167,14 +194,13 @@
     _logTextView.text = @"";
 }
 - (IBAction)beaconSwitchValueChanged:(id)sender {
-    // BTの電源がONになっているかを、確認します。
-    if (_peripheralManager.state != CBPeripheralManagerStatePoweredOn) {
-        [self showAleart:@"Bleutoothの電源が入っていません"];
-        self.beaconSwitch.on = NO;
-        return;
-    }
-    
     if(self.beaconSwitch.on) {
+        // BTの電源がONになっているかを、確認します。
+        if (_peripheralManager.state != CBPeripheralManagerStatePoweredOn) {
+            //        [self showAleart:@"Bleutoothの電源が入っていません"];
+            self.beaconSwitch.on = NO;
+            return;
+        }
         [self startBeacon];
     } else {
         [self stopBeacon];
@@ -182,7 +208,7 @@
 }
 
 - (IBAction)monitoringSwitchValueChanged:(id)sender {
-    if([CLLocationManager isRangingAvailable]) {
+    if([CLLocationManager isMonitoringAvailableForClass:[CLBeaconRegion class]]) {
         if(self.monitoringSwitch.on) {
             [self startMonitoring];
         } else {
@@ -193,11 +219,40 @@
         self.monitoringSwitch.on = NO;
     }
 }
+
+- (IBAction)rangingSwitchValueChanged:(id)sender {
+    if([CLLocationManager isRangingAvailable]) {
+        if(self.rangingSwitch.on) {
+            [self startRanging];
+        } else {
+            [self stopRanging];
+        }
+    } else {
+        [self showAleart:@"Ranging機能がありません。"];
+        self.rangingSwitch.on = NO;
+    }
+}
 #pragma mark CLLocationManagerDelegate
 - (void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray *)beacons inRegion:(CLBeaconRegion *)region {
-    [self writeLog:[NSString stringWithFormat:@"%s\n%@\n%@", __PRETTY_FUNCTION__, beacons, region]];
+//    [self writeLog:[NSString stringWithFormat:@"%s\n%@\n%@", __PRETTY_FUNCTION__, beacons, region]];
     
-    [_locationManager stopRangingBeaconsInRegion:_region];
+    // 先頭要素がunknownなCLBeaconがあるので、それは除外する
+    CLBeacon *firstBeacon = [beacons firstObject];
+    if(firstBeacon.proximity == CLProximityUnknown) {
+        [self writeLog:@"\t先頭要素のビーコンの近接状態がunknown."];
+    }
+    /*
+    for(CLBeacon *beacon in beacons) {
+        if(beacon.proximity != CLProximityUnknown) {
+            [self writeLog:[NSString stringWithFormat:@"\t先頭要素:%@",beacon]];
+            break;
+        }
+    }
+     */
+    
+    if(!self.rangingSwitch.on) {
+        [_locationManager stopRangingBeaconsInRegion:_region];
+    }
 }
 - (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error {
     [self writeLog:[NSString stringWithFormat:@"%s\n%@\n%@", __PRETTY_FUNCTION__, region, error]];
@@ -221,7 +276,7 @@
     }
 }
 -(void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
-    [self writeLog:[NSString stringWithFormat:@"%s\nstate:%d %@", __PRETTY_FUNCTION__, (int)state, region]];
+//    [self writeLog:[NSString stringWithFormat:@"%s\nstate:%d %@", __PRETTY_FUNCTION__, (int)state, region]];
 }
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
 //    [self writeLog:[NSString stringWithFormat:@"%s\n%@", __PRETTY_FUNCTION__, region]];
@@ -236,7 +291,7 @@
 }
 - (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
 //    [self writeLog:[NSString stringWithFormat:@"%s\n%@", __PRETTY_FUNCTION__, region]];
-    [self logging:@"Exit" region:(CLBeaconRegion *)region];
+//    [self logging:@"Exit" region:(CLBeaconRegion *)region];
 }
 - (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager {
     [self writeLog:[NSString stringWithFormat:@"%s", __PRETTY_FUNCTION__]];
