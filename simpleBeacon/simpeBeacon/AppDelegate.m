@@ -7,6 +7,12 @@
 //
 
 #import "AppDelegate.h"
+@import CoreLocation;
+
+@interface AppDelegate() {
+    CLLocationManager *_mgr;
+}
+@end
 
 @implementation AppDelegate
 
@@ -25,6 +31,18 @@
     
     NSLog(@"%s options:%@", __PRETTY_FUNCTION__, launchOptions);
     // Override point for customization after application launch.
+    
+    _mgr = [[CLLocationManager alloc] init];
+    _mgr.delegate = self;
+    
+    [self pushNotification:[NSString stringWithFormat:@"launch:%@", launchOptions]];
+    /*
+    _region = [[CLBeaconRegion alloc]
+               initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:kBeaconUUID]
+               identifier:kIdentifier];
+    //               identifier:identifier];
+                [_locationManager startMonitoringForRegion:region];
+*/
     return YES;
 }
 							
@@ -60,4 +78,19 @@
     NSLog(@"%s", __PRETTY_FUNCTION__);
 }
 
+#pragma mark CLLocationManagerDelegate
+-(void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
+    [self pushNotification:[NSString stringWithFormat:@"%@:%d %@",@"state", (int)state, region]];
+}
+- (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
+    [self pushNotification:[NSString stringWithFormat:@"%@:%@", @"enter", region]];
+}
+- (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
+    [self pushNotification:[NSString stringWithFormat:@"%@:%@", @"exit", region]];
+}
+-(void)pushNotification:(NSString *)msg {
+    UILocalNotification *notification = [[UILocalNotification alloc] init];
+    notification.alertBody =msg;
+    [[UIApplication sharedApplication] presentLocalNotificationNow:notification];
+}
 @end

@@ -53,9 +53,24 @@
     _rangings = [NSMutableArray array];
     
     // CLBeaconRegionを作成
+
+    // 長い識別子を作る
+    /*
+    NSMutableString *identifier = [[NSMutableString alloc] init];
+    for(int i=0; i < 511; i++) {
+        [identifier appendFormat:@"%d", i % 10];
+    }*/
+    /*
+    _region = [[CLBeaconRegion alloc]
+               initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:kBeaconUUID]
+               major:4
+               minor:2
+               identifier:kIdentifier];
+    */
     _region = [[CLBeaconRegion alloc]
                initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:kBeaconUUID]
                identifier:kIdentifier];
+//               identifier:identifier];
     
     // 画面表示時に領域チェックする場合は、この設定を使います。結果は、locationManager:didDetermineState:forRegion:で返ってきます。
     //    _region.notifyEntryStateOnDisplay = YES;
@@ -72,6 +87,14 @@
     
     if ([[UIApplication sharedApplication] backgroundRefreshStatus] != UIBackgroundRefreshStatusAvailable) {
         [self showAleart:@"バックグラウンドのモニタリングが無効です。"];
+    }
+    // 前回起動時に登録されている領域をクリアする
+    NSSet *regions = [_locationManager.monitoredRegions copy];
+    if([regions count] > 0) {
+        [self writeLog:[NSString stringWithFormat:@"前回起動時の登録領域( %d つ)をクリアします。\n", [regions count]]];
+        for(CLRegion *region in regions) {
+            [_locationManager stopMonitoringForRegion:region];
+        }
     }
 }
 
@@ -113,15 +136,26 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if(! _isRegionUpperLimit) {
             NSUUID *uuid = [NSUUID UUID];
+
+            // 長い識別子
+            NSMutableString *identifier = [[NSMutableString alloc] init];
+            int cnt = [_regions count];
+            [identifier appendFormat:@"%d", cnt % 100];
+            for(int i=0; i < (511 -2); i++) {
+                [identifier appendFormat:@"%d", cnt++ % 10];
+            }
+            
             CLBeaconRegion *region = [[CLBeaconRegion alloc]
                                       initWithProximityUUID:uuid
-                                      identifier:[NSString stringWithFormat:@"com.rein.%d", (int)[_regions count]]];
+//                                      identifier:[NSString stringWithFormat:@"com.rein.%d", (int)[_regions count]]];
+                                       identifier:identifier];
+
             [_regions addObject:region];
             [_locationManager startMonitoringForRegion:region];
             
             [self writeLog:[NSString stringWithFormat:@"登録(%@): %d",uuid, (int)[_regions count]]];
             
-if([_regions count] > 10) return;
+//if([_regions count] > 21) return;
             
             double delayInSeconds = 0.3;
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
@@ -165,6 +199,7 @@ if([_regions count] > 10) return;
     
     if(self.rangingSwitch.on) {
         [_locationManager startRangingBeaconsInRegion:_region];
+        
         // レンジング登録上限を調べる
 //        [self testRangingUpperLimit];
     } else {
@@ -187,12 +222,27 @@ if([_regions count] > 10) return;
     
     if(self.regionSwitch.on) {
         [_locationManager startMonitoringForRegion:_region];
-
-        [_locationManager requestStateForRegion:_region];
+//        [_locationManager requestStateForRegion:_region];
         
         self.inRegionTextLabel.alpha = 1.0;
         self.inRegionStatusTextLabel.alpha = 1.0;
         
+        // 地理的領域を20個追加するコード
+        /*
+        [_locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+        [_locationManager setDistanceFilter:kCLDistanceFilterNone];
+        [_locationManager startUpdatingLocation];
+        for(int i=0; i < 20; i++) {
+            CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(35.71014, 139.81085);
+            CLLocationDistance radiusOnMeter = 100.0;
+            CLRegion *grRegion = [[CLRegion alloc]
+                                  initCircularRegionWithCenter:coordinate
+                                  radius:radiusOnMeter
+                                  identifier:[NSString stringWithFormat:@"com.rein.geo.%d",i]];
+            [_locationManager startMonitoringForRegion:grRegion];
+        }
+         */
+
         //リージョンの登録上限値を調べるテストコード
 //        [self testRegionUpperLimit];
     } else {
@@ -258,9 +308,12 @@ monitoringDidFailForRegion:(CLRegion *)region
 - (void)locationManager:(CLLocationManager *)manager
          didEnterRegion:(CLRegion *)region {
     [self writeLog:[NSString stringWithFormat:@"%s\n%@", __PRETTY_FUNCTION__, region]];
+    //識別子の長さ
+    [self writeLog:[NSString stringWithFormat:@"length of identifier: %d\n", [region.identifier length]]];
     
     self.inRegionStatusTextLabel.text = @"YES";
 }
+
 - (void)locationManager:(CLLocationManager *)manager
           didExitRegion:(CLRegion *)region {
     [self writeLog:[NSString stringWithFormat:@"%s\n%@", __PRETTY_FUNCTION__, region]];

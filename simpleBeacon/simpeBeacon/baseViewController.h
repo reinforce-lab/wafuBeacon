@@ -9,9 +9,9 @@
 #import <UIKit/UIKit.h>
 
 // estimote default UUID
-//#define kBeaconUUID  @"B9407F30-F5F8-466E-AFF9-25556B57FE6D"
+#define kBeaconUUID  @"B9407F30-F5F8-466E-AFF9-25556B57FE6D"
 // random UUID
-#define kBeaconUUID  @"C7FC8659-DEE1-4B64-880A-83EAE89C59C3"
+//#define kBeaconUUID  @"C7FC8659-DEE1-4B64-880A-83EAE89C59C3"
 
 #define kIdentifier  @"com.reinforce-lab"
 #define kPassBookURL @"https://pass.is/1B7fvaX1VrrZMqn"

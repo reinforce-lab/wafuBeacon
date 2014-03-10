@@ -448,7 +448,7 @@
                         <outlet property="rangeProxTextLabel" destination="6fN-EQ-58W" id="QwM-2f-nR9"/>
                         <outlet property="rangeRssiTextLabel" destination="o90-hj-UcO" id="Puu-SN-JLu"/>
                         <outlet property="rangeUUIDTextLabel" destination="VpP-Mp-VQd" id="bzB-8Q-GWh"/>
-                        <outlet property="rangingSwitch" destination="Lja-iQ-CKj" id="aog-VB-R7d"/>
+                        <outlet property="rangingSwitch" destination="9KI-fz-6Al" id="aim-9m-TCF"/>
                         <outlet property="regionSwitch" destination="Lja-iQ-CKj" id="afq-u1-i4n"/>
                         <outlet property="uuidTextLabel" destination="WLY-9p-aBy" id="rbl-1h-akv"/>
                     </connections>
