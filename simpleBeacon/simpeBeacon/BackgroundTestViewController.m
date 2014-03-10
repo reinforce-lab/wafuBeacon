@@ -106,7 +106,7 @@
 }
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
     [self writeLog:[NSString stringWithFormat:@"%s\n%@", __PRETTY_FUNCTION__, region]];
-    [self logging:region];
+    [self logging:(CLBeaconRegion *)region];
 }
 - (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
     [self writeLog:[NSString stringWithFormat:@"%s\n%@", __PRETTY_FUNCTION__, region]];
