@@ -91,7 +91,7 @@
     // 前回起動時に登録されている領域をクリアする
     NSSet *regions = [_locationManager.monitoredRegions copy];
     if([regions count] > 0) {
-        [self writeLog:[NSString stringWithFormat:@"前回起動時の登録領域( %d つ)をクリアします。\n", [regions count]]];
+        [self writeLog:[NSString stringWithFormat:@"前回起動時の登録領域( %d つ)をクリアします。\n", (int)[regions count]]];
         for(CLRegion *region in regions) {
             [_locationManager stopMonitoringForRegion:region];
         }

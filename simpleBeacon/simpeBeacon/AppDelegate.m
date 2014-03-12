@@ -5,7 +5,7 @@
 //  Created by uehara akihiro on 2013/10/19.
 //  Copyright (c) 2013年 REINFORCE Lab. All rights reserved.
 //
-
+#import "baseViewController.h"
 #import "AppDelegate.h"
 @import CoreLocation;
 
@@ -36,13 +36,12 @@
     _mgr.delegate = self;
     
     [self pushNotification:[NSString stringWithFormat:@"launch:%@", launchOptions]];
-    /*
-    _region = [[CLBeaconRegion alloc]
+
+     CLBeaconRegion *region = [[CLBeaconRegion alloc]
                initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:kBeaconUUID]
                identifier:kIdentifier];
-    //               identifier:identifier];
-                [_locationManager startMonitoringForRegion:region];
-*/
+    [_mgr startMonitoringForRegion:region];
+
     return YES;
 }
 							
