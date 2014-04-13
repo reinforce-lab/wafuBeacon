@@ -96,6 +96,8 @@
             [_locationManager stopMonitoringForRegion:region];
         }
     }
+    // レンジングの対象領域数を表示する
+    [self writeLog:[NSString stringWithFormat:@"レンジング領域は %d あります。\n", (int)[_locationManager.rangedRegions count]]];
 }
 
 #pragma mark Private methods
@@ -222,6 +224,9 @@
     
     if(self.regionSwitch.on) {
         [_locationManager startMonitoringForRegion:_region];
+        // 領域監視スタート時の状況を取得する。
+        // iOS7.0では自分で呼びださなければならなかったが、iOS7.0.4以降(7.0.4で気づいただけで、もしかしたら、もう少し前かも)は
+        // startMonitoringForRegion: 呼び出しで現在の領域のステートが勝手に取得される。
 //        [_locationManager requestStateForRegion:_region];
         
         self.inRegionTextLabel.alpha = 1.0;
