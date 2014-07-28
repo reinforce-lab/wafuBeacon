@@ -9,7 +9,7 @@ simpleBeaconは、いつどんなデリゲートのメソッドが呼び出さ�
 アプリが使うUUIDは、baseViewController.h にハードコードでkBeaconUUID と定義しています。UUIDをビーコンにあわせたいならば、この定義を変更します。
 周囲にEstimoteなどのビーコンがあっても反応しないように、このアプリケーションにはランダムに生成したUUIDを設定しています。
 
-![simpleBeaconのスクリーンショット](./doc/simpleBeeacon_screenshot.jpg)
+![simpleBeaconのスクリーンショット](./doc/simpleBeacon_screenshot.jpg)
 
 アプリには3つのタブがあります。
 
